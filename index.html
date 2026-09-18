@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ajuste por Mínimos Cuadrados — UTN FRLP</title>
+<title>Ajuste por Mínimos Cuadrados — Guía de Estudio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,113 +15,128 @@
 <div class="shell">
   <nav class="rail" id="rail">
     <div class="brand">Mínimos Cuadrados</div>
-    <a href="#clusteres">1. Identificación de Clústeres</a>
-    <a href="#analisis-regresion">2. Análisis de Regresión</a>
-    <a href="#calculo-parametros">3. Cálculo de Parámetros</a>
-    <a href="#graficos-simulador">4. Gráficos y Simulador</a>
-    <a href="#evaluacion-calidad">5. Evaluación de Calidad</a>
-    <a href="#comparacion-conclusion">6. Comparación y Conclusión</a>
+    <a href="#intro">1. Introducción al Ajuste</a>
+    <a href="#interpolacion-regresion">2. Interpolación vs. Regresión</a>
+    <a href="#minimos-cuadrados">3. Método de Mínimos Cuadrados</a>
+    <a href="#modelos">4. Fórmulas y Linealización</a>
+    <a href="#bondad">5. Bondad del Ajuste</a>
+    <a href="#calculadora">6. Simulador Interactivo</a>
   </nav>
 
   <main>
     <section class="hero" id="intro">
-      <p class="eyebrow">Análisis Numérico · Trabajo Práctico</p>
-      <h1>Ajuste de Curvas y<br>Mínimos Cuadrados</h1>
-      <p class="lead">Análisis empírico del Caso 1: Enfriamiento de Bebidas. Identificación de clústeres, cálculo de parámetros matriciales, evaluación de residuos y representación gráfica interactiva.</p>
+      <p class="eyebrow">Análisis Numérico · Guía Teórica</p>
+      <h1>Mínimos Cuadrados y<br>Ajuste de Curvas</h1>
+      <p class="lead">Guía de estudio completa desde cero basada en los apuntes de la cátedra, junto a un simulador para la identificación de ecuaciones.</p>
       
       <div class="hero-eq">
-        <span>r² = (ST - SR) / ST</span>
-        <span class="arrow">→</span>
-        <span>Minimizar ∑[f(x<sub>i</sub>) - y<sub>i</sub>]²</span>
+        <span>r² = (S<sub>media</sub> - S<sub>ajuste</sub>) / S<sub>media</sub></span>
       </div>
       <p class="hero-meta">Grupo N.º 4 · Alconada - Cabrer - De Lorenzo - Salvagnini</p>
     </section>
 
-    <section id="clusteres">
-      <p class="eyebrow">Consigna 1</p>
-      <h2>Identificación y Separación de Clústeres</h2>
-      <p>El problema plantea evaluar el rendimiento de distintos materiales frente a la pérdida de temperatura. A partir del dataset general provisto, se identificaron y separaron correctamente <b>cuatro clústeres independientes</b>, cada uno compuesto por <b>n = 61</b> mediciones tomadas a intervalos de 2 minutos durante un período total de 120 minutos:</p>
-      <ul>
-        <li><b>Clúster 1:</b> Recipiente Térmico.</li>
-        <li><b>Clúster 2:</b> Vaso de Papel (con tapa).</li>
-        <li><b>Clúster 3:</b> Taza de Cerámica (descubierta).</li>
-        <li><b>Clúster 4:</b> Vaso de Vidrio (descubierto).</li>
-      </ul>
-      <p>La variable independiente <b>(x)</b> es el Tiempo transcurrido (minutos) y la variable dependiente <b>(y)</b> es la Temperatura de la bebida (°C).</p>
+    <section id="introduccion">
+      <p class="eyebrow">01 — ¿Por qué modelamos?</p>
+      <h2>Introducción y Objetivo</h2>
+      <p>Cuando trabajamos con datos, resulta de particular interés encontrar una función matemática que pueda predecir correctamente el resultado de dichos datos[cite: 1]. Por ejemplo, en una cafetería podríamos desear conocer la temperatura de enfriamiento de un café a medida que pasa el tiempo[cite: 1]. Lo ideal es encontrar una función que tenga al tiempo como variable independiente (input) y a la temperatura como variable dependiente (output)[cite: 1]. El método de mínimos cuadrados nos permite obtener una regla general a partir de nuestros datos para predecir futuros resultados[cite: 1].</p>
     </section>
 
-    <section id="analisis-regresion" class="wide">
-      <p class="eyebrow">Consigna 3</p>
-      <h2>Análisis: ¿Qué regresión describe mejor los datos?</h2>
-      <p>Para determinar el modelo matemático óptimo, analizamos la naturaleza física del fenómeno y comparamos los distintos ajustes estudiados:</p>
-
+    <section id="interpolacion-regresion" class="wide">
+      <p class="eyebrow">02 — La Decisión Metodológica</p>
+      <h2>Interpolación vs. Análisis de Regresión</h2>
+      <p>Para situar un conjunto de puntos en una curva, disponemos de dos caminos distintos[cite: 1]:</p>
+      
       <div class="model-grid">
         <div class="model-card">
-          <h3>Ajuste Lineal</h3>
-          <p class="dim">Asume una pérdida de calor constante ($y = a_1 + a_2x$).</p>
-          <p>Resulta matemáticamente aceptable <b>solo para el recipiente térmico</b> en este corto lapso (120 min), pero es físicamente erróneo a largo plazo, ya que predeciría temperaturas bajo cero.</p>
+          <h3 style="color: var(--chalk-pink);">1. Método de Interpolación</h3>
+          <p class="dim">Genera una función que es 100% correcta y exacta[cite: 1].</p>
+          <p>En este método existe una igualdad estricta donde cada punto debe estar contenido en la función[cite: 1]. Sin embargo, el problema radica en que <b>los datos utilizados deben ser 100% correctos y sin errores (datos teóricos)</b>[cite: 1]. Debido a que los datos de nuestro caso de enfriamiento son experimentales, métodos como el polinomio de Newton o Lagrange no son aplicables[cite: 1].</p>
         </div>
 
         <div class="model-card">
-          <h3>Ajuste Polinómico (Grado 2)</h3>
-          <p class="dim">Modela cambios de concavidad ($y = a_1 + a_2x + a_3x^2$).</p>
-          <p>Ajusta muy bien a la cerámica y el vidrio (que sufren una caída abrupta y luego se estabilizan), pero falla como modelo predictivo porque la parábola eventualmente volvería a subir.</p>
-        </div>
-
-        <div class="model-card" style="grid-column: 1 / -1; border-color: var(--chalk-yellow); background: rgba(13,110,253,0.02);">
-          <h3 style="color: var(--chalk-yellow);">El Modelo Definitivo: Exponencial Desplazado (Ley de Newton)</h3>
-          <p class="dim">Basado en la termodinámica: $y = T_{amb} + a \cdot e^{bx}$</p>
-          <p>Al analizar los datos, comprendimos que la temperatura no desciende a cero, sino que tiende asintóticamente a la temperatura ambiente. Al aplicar una traslación de ejes ($y' = y - T_{amb}$) y realizar un <b>ajuste exponencial linealizado mediante logaritmos</b>, logramos que un solo modelo describa a la perfección la física de los 4 clústeres simultáneamente.</p>
+          <h3 style="color: var(--chalk-teal);">2. Análisis de Regresión</h3>
+          <p class="dim">Encuentra la "regla general" de los datos empíricos[cite: 1].</p>
+          <p>A diferencia de la interpolación, la regresión se guía por las tendencias sin tratar a los datos experimentales como exactos[cite: 1]. Nos permite encontrar una fórmula que aproxima muy bien la realidad, midiendo la dependencia de nuestra variable aleatoria frente a la independiente[cite: 1].</p>
         </div>
       </div>
     </section>
 
-    <section id="calculo-parametros">
-      <p class="eyebrow">Consigna 4</p>
-      <h2>Cálculo de Parámetros por Mínimos Cuadrados</h2>
-      <p>Se implementó el método de mínimos cuadrados para identificar las ecuaciones resultantes. A modo de demostración, detallamos la resolución matricial del ajuste <b>Exponencial Desplazado</b> para el Recipiente Térmico, trasladando cada punto con su $T_{amb}$ exacta medida en ese instante.</p>
+    <section id="minimos-cuadrados">
+      <p class="eyebrow">03 — Desarrollo Matemático</p>
+      <h2>El Método de Mínimos Cuadrados</h2>
+      <p>Este método utiliza la regresión para encontrar la mejor recta o curva para un conjunto de puntos experimentales[cite: 1]. La mejor curva es aquella donde <b>la suma mínima de los cuadrados de las distancias (medidas en el eje y) de cada punto a la recta es la menor posible</b>[cite: 1].</p>
+      
+      <div class="box note">
+        <div class="box-title">¿Por qué usamos los cuadrados?</div>
+        <p>Al utilizar los cuadrados de las distancias, nos aseguramos de que no importe si el punto experimental se encuentra por arriba o por debajo de la curva propuesta[cite: 1].</p>
+      </div>
 
-      <p><b>1. Variable trasladada:</b> $y' = y - T_{amb}$</p>
-      <p><b>2. Linealización:</b> $\ln(y') = \ln(a) + b \cdot x$</p>
-      <p><b>3. Sumatorias Obtenidas ($n=61$):</b></p>
-      <ul style="font-family: 'IBM Plex Mono', monospace; font-size: 0.9rem;">
-        <li>$\sum x_i = 3660$</li>
-        <li>$\sum x_i^2 = 295240$</li>
-        <li>$\sum \ln(y'_i) = 230.1889$</li>
-        <li>$\sum (x_i \cdot \ln(y'_i)) = 13296.5979$</li>
+      <p>Si buscamos un polinomio $p(x) = a + bx$, la suma de los cuadrados de las distancias a minimizar se define como $q = \sum_{i=1}^{n} (y_i - (a + bx_i))^2$[cite: 1]. Para que esta distancia sea mínima, se aplican condiciones igualando a cero las derivadas parciales de la función respecto a los parámetros a y b[cite: 1]. Esto da origen al Sistema Normal de Ecuaciones.</p>
+    </section>
+
+    <section id="modelos">
+      <p class="eyebrow">04 — Fórmulas de Ajuste</p>
+      <h2>Sistemas de Ecuaciones y Linealización</h2>
+      <p>Aplicando las derivadas parciales igualadas a cero a distintos modelos, obtenemos las matrices a resolver[cite: 1]:</p>
+
+      <h3>1. Modelo Polinómico (y Lineal)</h3>
+      <p>Al distribuir las sumatorias de las derivadas de $p(x) = a + bx$, obtenemos el sistema de 2x2 para el ajuste lineal[cite: 1]:</p>
+      <div class="formula">
+        a·n + b·Σxᵢ = Σyᵢ<br>
+        a·Σxᵢ + b·Σxᵢ² = Σxᵢyᵢ
+      </div>
+      <p>El método no se limita a funciones lineales. Para un polinomio de grado m ($p(x) = a_0 + a_1x + \dots + a_mx^m$), el procedimiento es idéntico: se igualan a cero las derivadas respecto a los m coeficientes, generando una matriz ampliada con sumatorias hasta la potencia x<sup>2m</sup>[cite: 1].</p>
+
+      <h3>2. Linealización del Modelo Exponencial</h3>
+      <p>Un problema común es que al graficar los puntos, estos formen una curva distinta a la de un polinomio[cite: 1]. Particularmente, <b>el enfriamiento de un líquido sigue la gráfica de una curva exponencial ($y = a \cdot e^{bx}$)</b>[cite: 1].</p>
+      <p>Para aplicar nuestro método matricial, usamos el ajuste por linealización aplicando logaritmo natural en ambos lados[cite: 1]:</p>
+      <div class="formula" style="font-size: 1.1rem; color: var(--chalk-pink);">
+        ln(y) = ln(a) + b·x
+      </div>
+      <p>Tratando a los coeficientes de modo que $\ln(a) = a_0$ y $b = a_1$, obtenemos nuestro nuevo sistema de ecuaciones linealizado para fenómenos de enfriamiento[cite: 1]:</p>
+      <div class="formula">
+        ln(a)·n + b·Σxᵢ = Σln(yᵢ)<br>
+        ln(a)·Σxᵢ + b·Σxᵢ² = Σ(xᵢ·ln(yᵢ))
+      </div>
+    </section>
+
+    <section id="bondad">
+      <p class="eyebrow">05 — Análisis de Correlación</p>
+      <h2>Evaluación de Bondad (r²)</h2>
+      <p>El análisis de correlación mide qué tan "correlacionados" están los datos experimentales entre sí[cite: 1]. Al tomar el cuadrado del coeficiente de correlación, obtenemos la <b>bondad del ajuste ($r^2$)</b>[cite: 1]. Este valor nos indica, en forma de porcentaje, la relación exacta que existe entre los datos experimentales y la función matemática obtenida del modelo[cite: 1].</p>
+      
+      <p>Se calcula matemáticamente como[cite: 1]:</p>
+      <div class="formula">
+        r² = ( S<sub>media</sub> - S<sub>ajuste</sub> ) / S<sub>media</sub>
+      </div>
+      <ul style="font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem;">
+        <li>S<sub>media</sub> = Σ(yᵢ - y<sub>media</sub>)²[cite: 1]</li>
+        <li>S<sub>ajuste</sub> = Σ(yᵢ - y<sub>ajuste</sub>)²[cite: 1]</li>
       </ul>
-
-      <p><b>4. Resolución del Sistema Normal ($2 \times 2$):</b></p>
-      <div class="formula" style="font-size: 0.9rem;">
-        [ 61     3660   ] [ ln(a) ] = [ 230.1889   ]<br>
-        [ 3660   295240 ] [   b   ] = [ 13296.5979 ]
-      </div>
-
-      <p>Despejando por determinantes, la ecuación identificada es: <b>$y(x) = T_{amb} + 65.4896 \cdot e^{-0.0068x}$</b></p>
+      <p><i>Nota clave:</i> Para evaluar una curva exponencial linealizada, simplemente basta con reemplazar a yᵢ con ln(yᵢ) en estas sumatorias[cite: 1].</p>
     </section>
 
-    <section id="graficos-simulador" class="wide">
-      <p class="eyebrow">Consignas 2 y 4</p>
-      <h2>Representación Gráfica e Identificación de Ecuaciones</h2>
-      <p>La siguiente herramienta grafica los datos del clúster cargado y calcula en tiempo real los parámetros matriciales para 4 modelos distintos de regresión, identificando automáticamente la ecuación empírica con mejor rendimiento.</p>
+    <section id="calculadora" class="wide">
+      <p class="eyebrow">06 — Aplicación del Caso</p>
+      <h2>Calculadora de Ecuaciones y Gráficos</h2>
+      <p>Esta herramienta aplica las ecuaciones del documento para calcular en tiempo real los parámetros matriciales ($a_0, a_1, a_m$) y exhibe la curva que posea la mayor bondad del ajuste ($r^2$).</p>
 
       <div class="calc-panel">
         <div class="calc-grid">
-          <!-- Entradas -->
           <div class="input-col">
             <div class="toolbar">
               <button class="btn small" id="btn-add">+ Fila</button>
               <button class="btn small" id="btn-clear" style="color:var(--chalk-pink); border-color:var(--chalk-pink);">Limpiar</button>
-              <button class="btn small primary" id="btn-example">Cargar Clúster 2 (Papel)</button>
+              <button class="btn small primary" id="btn-example">Cargar Café (Termo)</button>
             </div>
             
             <div class="table-container">
               <table id="data-table">
                 <thead>
                   <tr>
-                    <th>X (Min)</th>
-                    <th>Y (Temp)</th>
-                    <th>$T_{amb}$</th>
+                    <th>Tiempo (x)</th>
+                    <th>Temp (y)</th>
+                    <th>T<sub>amb</sub> (Opc.)</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -132,16 +147,15 @@
             </div>
 
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 6px; border: 1px solid var(--board-line);">
-              <label style="font-size: 0.9rem; font-weight: 600;">$T_{amb}$ Global (si celda vacía):</label>
+              <label style="font-size: 0.9rem; font-weight: 600;">T<sub>amb</sub> Global para Linealización:</label>
               <input type="number" id="input-tamb" value="22" style="width: 70px;">
             </div>
-            <button class="btn primary" id="btn-calculate" style="width: 100%; margin-top: 15px; font-size: 1.05rem;">Calcular Modelos por Mínimos Cuadrados</button>
+            <button class="btn primary" id="btn-calculate" style="width: 100%; margin-top: 15px; font-size: 1.05rem;">Calcular Ajuste de Curva</button>
           </div>
 
-          <!-- Resultados -->
           <div class="result-col">
             <div class="box speak" id="best-fit-box" style="margin-top: 0; display: none;">
-              <div class="box-title">🏆 Ecuación Empírica Identificada</div>
+              <div class="box-title">🏆 Modelo Identificado</div>
               <h3 id="res-type" style="margin: 4px 0 10px; font-size: 1.4rem;">-</h3>
               <div class="formula" id="res-eq" style="margin: 0; font-size: 1.1rem;">-</div>
               <p style="margin-top: 10px; font-weight: 600;">Bondad del ajuste: <span id="res-r2" style="color: var(--chalk-teal);">-</span></p>
@@ -154,7 +168,7 @@
             <table class="compare" id="all-models-table" style="margin-top: 15px; display: none;">
               <thead>
                 <tr>
-                  <th>Regresión</th>
+                  <th>Regresión Evaluada</th>
                   <th>Ecuación Resultante</th>
                   <th>$r^2$</th>
                 </tr>
@@ -163,62 +177,6 @@
             </table>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section id="evaluacion-calidad">
-      <p class="eyebrow">Consigna 5</p>
-      <h2>Evaluación de la Calidad del Ajuste</h2>
-      <p>La validez de las ecuaciones generadas fue evaluada mediante tres métodos cruzados:</p>
-      <ul>
-        <li><b>Coeficiente de Determinación ($r^2$):</b> Calculado como $\frac{ST - SR}{ST}$. En todos los clústeres, al aplicar el modelo Exponencial Desplazado, se obtuvieron valores de $r^2 > 0.998$, superando holgadamente el umbral de aceptación ($0.85$) exigido por la teoría.</li>
-        <li><b>Análisis de los Residuos:</b> Los residuos representan la distancia vertical entre la curva matemática y cada punto experimental. Al graficar el modelo lineal en los clústeres descubiertos (cerámica/vidrio), los residuos formaban un arco visible (error sistemático). Al cambiar al modelo de Newton, los residuos se minimizaron, mostrando una distribución aleatoria milimétrica, lo que confirma que el modelo absorbió correctamente la tendencia.</li>
-        <li><b>Observación de los Gráficos:</b> Como se puede constatar en la herramienta interactiva, la superposición visual de la curva continua sobre la nube de puntos discreta es prácticamente perfecta, garantizando interpolaciones confiables.</li>
-      </ul>
-    </section>
-
-    <section id="comparacion-conclusion">
-      <p class="eyebrow">Consignas 6 y 7</p>
-      <h2>Comparación, Interpretación y Conclusión General</h2>
-      <p>Al unificar la ecuación matemática de todos los clústeres bajo la Ley de Enfriamiento de Newton ($y = T_{amb} + a \cdot e^{bx}$), fue posible comparar directamente el parámetro <b>$b$</b>, que representa la constante de decaimiento térmico (velocidad de pérdida de calor):</p>
-      
-      <div class="table-scroll">
-        <table class="compare" style="margin-bottom: 20px;">
-          <thead>
-            <tr>
-              <th>Clúster (Material)</th>
-              <th>Constante térmica ($b$)</th>
-              <th>Interpretación Física</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1. Recipiente Térmico</td>
-              <td><b>-0.0068</b></td>
-              <td>Posee la tasa de enfriamiento más lenta. Su aislamiento es casi perfecto, simulando ser una recta a simple vista.</td>
-            </tr>
-            <tr>
-              <td>2. Papel con Tapa</td>
-              <td><b>-0.0179</b></td>
-              <td>Al bloquear la convección con la tapa, frena drásticamente la pérdida térmica respecto al vaso abierto.</td>
-            </tr>
-            <tr>
-              <td>3. Cerámica Abierta</td>
-              <td><b>-0.0231</b></td>
-              <td>Sufre una alta fuga calórica por radiación y convección, perdiendo calor el triple de rápido que el termo.</td>
-            </tr>
-            <tr>
-              <td>4. Vidrio Abierto</td>
-              <td><b>-0.0316</b></td>
-              <td>Resultó el peor aislante. Su tasa de pérdida térmica quintuplica a la del recipiente térmico.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="box note">
-        <div class="box-title">Conclusión General del Caso</div>
-        <p>Queda demostrado numérica y gráficamente que el material aislante y el uso de tapa intervienen directamente en la función de transferencia térmica. Desde el enfoque de Mínimos Cuadrados, se concluye que no se debe forzar una recta o polinomio que carezca de sustento físico, sino que <b>el modelo exponencial trasladado (Ley de Newton) es la única regresión que describe, modela y predice con exactitud</b> el comportamiento térmico de los 4 recipientes estudiados.</p>
       </div>
     </section>
 
