@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ajuste por Mínimos Cuadrados — Guía de Estudio</title>
+<title>Mínimos cuadrados</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,111 +15,280 @@
 <div class="shell">
   <nav class="rail" id="rail">
     <div class="brand">Mínimos Cuadrados</div>
-    <a href="#intro">1. Introducción al Ajuste</a>
-    <a href="#interpolacion-regresion">2. Interpolación vs. Regresión</a>
-    <a href="#minimos-cuadrados">3. Método de Mínimos Cuadrados</a>
-    <a href="#modelos">4. Fórmulas y Linealización</a>
-    <a href="#bondad">5. Bondad del Ajuste</a>
-    <a href="#calculadora">6. Simulador Interactivo</a>
+    <a href="#intro">1. Introducción</a>
+    <a href="#base-teorica">2. Base Teórica</a>
+    <a href="#caso">3. Caso: Recipientes de café</a>
+    <a href="#calculadora">4. Calculadora Interactiva</a>
+    <a href="#bibliografia">5. Bibliografía</a>
   </nav>
 
   <main>
     <section class="hero" id="intro">
-      <p class="eyebrow">Análisis Numérico · Guía Teórica</p>
-      <h1>Mínimos Cuadrados y<br>Ajuste de Curvas</h1>
-      <p class="lead">Guía de estudio completa desde cero basada en los apuntes de la cátedra, junto a un simulador para la identificación de ecuaciones.</p>
-      
-      <div class="hero-eq">
-        <span>r² = (S<sub>media</sub> - S<sub>ajuste</sub>) / S<sub>media</sub></span>
-      </div>
+      <p class="eyebrow">Análisis Numérico</p>
+      <h1>Mínimos cuadrados</h1>
       <p class="hero-meta">Grupo N.º 4 · Alconada - Cabrer - De Lorenzo - Salvagnini</p>
-    </section>
-
-    <section id="introduccion">
-      <p class="eyebrow">01 — ¿Por qué modelamos?</p>
-      <h2>Introducción y Objetivo</h2>
-      <p>Cuando trabajamos con datos, resulta de particular interés encontrar una función matemática que pueda predecir correctamente el resultado de dichos datos[cite: 1]. Por ejemplo, en una cafetería podríamos desear conocer la temperatura de enfriamiento de un café a medida que pasa el tiempo[cite: 1]. Lo ideal es encontrar una función que tenga al tiempo como variable independiente (input) y a la temperatura como variable dependiente (output)[cite: 1]. El método de mínimos cuadrados nos permite obtener una regla general a partir de nuestros datos para predecir futuros resultados[cite: 1].</p>
-    </section>
-
-    <section id="interpolacion-regresion" class="wide">
-      <p class="eyebrow">02 — La Decisión Metodológica</p>
-      <h2>Interpolación vs. Análisis de Regresión</h2>
-      <p>Para situar un conjunto de puntos en una curva, disponemos de dos caminos distintos[cite: 1]:</p>
-      
-      <div class="model-grid">
-        <div class="model-card">
-          <h3 style="color: var(--chalk-pink);">1. Método de Interpolación</h3>
-          <p class="dim">Genera una función que es 100% correcta y exacta[cite: 1].</p>
-          <p>En este método existe una igualdad estricta donde cada punto debe estar contenido en la función[cite: 1]. Sin embargo, el problema radica en que <b>los datos utilizados deben ser 100% correctos y sin errores (datos teóricos)</b>[cite: 1]. Debido a que los datos de nuestro caso de enfriamiento son experimentales, métodos como el polinomio de Newton o Lagrange no son aplicables[cite: 1].</p>
-        </div>
-
-        <div class="model-card">
-          <h3 style="color: var(--chalk-teal);">2. Análisis de Regresión</h3>
-          <p class="dim">Encuentra la "regla general" de los datos empíricos[cite: 1].</p>
-          <p>A diferencia de la interpolación, la regresión se guía por las tendencias sin tratar a los datos experimentales como exactos[cite: 1]. Nos permite encontrar una fórmula que aproxima muy bien la realidad, midiendo la dependencia de nuestra variable aleatoria frente a la independiente[cite: 1].</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="minimos-cuadrados">
-      <p class="eyebrow">03 — Desarrollo Matemático</p>
-      <h2>El Método de Mínimos Cuadrados</h2>
-      <p>Este método utiliza la regresión para encontrar la mejor recta o curva para un conjunto de puntos experimentales[cite: 1]. La mejor curva es aquella donde <b>la suma mínima de los cuadrados de las distancias (medidas en el eje y) de cada punto a la recta es la menor posible</b>[cite: 1].</p>
-      
+      <h2>1. Introducción</h2>
+      <p>Cuando trabajamos con datos y deseamos estudiar el comportamiento de los fenómenos que los producen, nos es de particular interés encontrar una función matemática que nos pueda predecir correctamente el resultado de dichos datos.</p>
+      <p>Digamos que trabajo en una cafetería y que me interesa saber la temperatura de enfriamiento del café a medida que pasa el tiempo. Lo más cómodo sería tener una función a la que, con sólo darle un tiempo que haya pasado, pueda decirme el enfriamiento que mi café terminó sufriendo. En otras palabras, encontrar una función que tiene por variables al tiempo y a la temperatura, donde el tiempo es el input (o variable independiente), y la temperatura el output (variable dependiente).</p>
+      <p>El método de mínimos cuadrados sirve para encontrar tales funciones; y no limitándose a condiciones particulares, sino que obteniendo en el proceso una regla general que podemos utilizar para predecir futuros resultados a partir de nuestros datos.</p>
+      <p>Durante esta presentación, se intentará dar respuesta mediante este método al siguiente caso:</p>
       <div class="box note">
-        <div class="box-title">¿Por qué usamos los cuadrados?</div>
-        <p>Al utilizar los cuadrados de las distancias, nos aseguramos de que no importe si el punto experimental se encuentra por arriba o por debajo de la curva propuesta[cite: 1].</p>
+        <p style="margin:0;">Una cafetería desea comparar cuánto tiempo conservan el calor cuatro recipientes con un cierto material: taza de cerámica, vaso de vidrio, vaso de papel con tapa y recipiente térmico.</p>
+        <p style="margin:10px 0 0;">Se registró la temperatura de una bebida en el tiempo cada 2 minutos durante 120 minutos. El objetivo es construir, evaluar e interpretar un modelo para cada clúster y comparar el comportamiento de los cuatro recipientes.</p>
       </div>
 
-      <p>Si buscamos un polinomio $p(x) = a + bx$, la suma de los cuadrados de las distancias a minimizar se define como $q = \sum_{i=1}^{n} (y_i - (a + bx_i))^2$[cite: 1]. Para que esta distancia sea mínima, se aplican condiciones igualando a cero las derivadas parciales de la función respecto a los parámetros a y b[cite: 1]. Esto da origen al Sistema Normal de Ecuaciones.</p>
+
     </section>
 
-    <section id="modelos">
-      <p class="eyebrow">04 — Fórmulas de Ajuste</p>
-      <h2>Sistemas de Ecuaciones y Linealización</h2>
-      <p>Aplicando las derivadas parciales igualadas a cero a distintos modelos, obtenemos las matrices a resolver[cite: 1]:</p>
+    <section id="base-teorica">
+      <h2>2. Base Teórica</h2>
+      <p>A continuación se presenta la base teórica para entender el estudio de este caso. El marco teórico de ajuste de curvas nos ayuda a entender la herramienta que estamos utilizando para modelar, y nos da la base principal para trabajar con el método.</p>
+      <p>La teoría de mínimos cuadrados es el método específico de ajuste de curvas que se utilizará en el caso.</p>
 
-      <h3>1. Modelo Polinómico (y Lineal)</h3>
-      <p>Al distribuir las sumatorias de las derivadas de $p(x) = a + bx$, obtenemos el sistema de 2x2 para el ajuste lineal[cite: 1]:</p>
-      <div class="formula">
-        a·n + b·Σxᵢ = Σyᵢ<br>
-        a·Σxᵢ + b·Σxᵢ² = Σxᵢyᵢ
-      </div>
-      <p>El método no se limita a funciones lineales. Para un polinomio de grado m ($p(x) = a_0 + a_1x + \dots + a_mx^m$), el procedimiento es idéntico: se igualan a cero las derivadas respecto a los m coeficientes, generando una matriz ampliada con sumatorias hasta la potencia x<sup>2m</sup>[cite: 1].</p>
+      <h3>Ajuste de curvas</h3>
+      <p>Cuando tenemos un conjunto de datos los cuales pueden ser representados como puntos (por ejemplo, un par (t, T) para el cual dado un tiempo t, tenemos una temperatura T), y deseamos situar dichos puntos en una curva determinada por una función (la cual deseamos encontrar), estamos haciendo ajuste de curvas (o curve fitting, en inglés).</p>
+      <p>Matemáticamente, si tenemos un conjunto de n pares de números (t<sub>1</sub>,T<sub>1</sub>),...,(t<sub>n</sub>,T<sub>n</sub>), queremos encontrar una función f(x) tal que: f(t<sub>1</sub>) ≈ T<sub>1</sub>, ..., f(t<sub>n</sub>) ≈ T<sub>n</sub>. Para hacer esto, tenemos dos caminos distintos.</p>
+      <p>Con el método de <b>interpolación</b>, obtenemos una función la cual es 100% correcta, donde sin importar qué input introduzcamos, el resultado será siempre exacto. El problema de este método es que los datos que utilizamos para armar la función deben ser también 100% correctos y sin nada de errores; es decir, los datos son teóricos. En interpolación, la regla es que cada punto debe estar contenido en la función; es decir, f(t<sub>1</sub>) = T<sub>1</sub>, ..., f(t<sub>n</sub>) = T<sub>n</sub> tiene una igualdad estricta. Algunos métodos famosos de interpolación son el método de interpolación lineal, el polinomio de Newton, o el polinomio de Lagrange. Dada la naturaleza del caso propuesto en este material, no trataremos con ninguno de estos métodos ya que nuestros datos no son teóricos y exactos sino que experimentales.</p>
+      <p>El segundo camino que tenemos es hacer <b>análisis de regresión y correlación</b>. A diferencia de la interpolación, se intenta encontrar una fórmula que nos dicte la "regla general" que la distribución de nuestros datos sigue (es decir, guiándonos en las tendencias, sin tratar dichos datos como exactos), lo cual nos da una función que aproxima muy bien los datos experimentales.</p>
+      <p>En el análisis de regresión, nos interesa saber la dependencia que una variable aleatoria y tiene con respecto a una variable independiente x. Particularmente, si esta dependencia es fuerte, entonces esto nos dice que la media de y, también depende fuertemente en x. Al encontrar la fórmula que se acerca a nuestros puntos experimentales, estamos realmente encontrando una curva de regresión que sigue las reglas de esta media. El método de mínimos cuadrados es una de las herramientas que nos ayuda a encontrar esta curva.</p>
+      <p>En el análisis de correlación medimos qué tan "correlacionados" están los datos experimentales entre sí. Con este análisis somos capaces de encontrar un coeficiente de correlación, el cual puede ser visto como el porcentaje que nos dice qué tan correlacionados los datos están.</p>
 
-      <h3>2. Linealización del Modelo Exponencial</h3>
-      <p>Un problema común es que al graficar los puntos, estos formen una curva distinta a la de un polinomio[cite: 1]. Particularmente, <b>el enfriamiento de un líquido sigue la gráfica de una curva exponencial ($y = a \cdot e^{bx}$)</b>[cite: 1].</p>
-      <p>Para aplicar nuestro método matricial, usamos el ajuste por linealización aplicando logaritmo natural en ambos lados[cite: 1]:</p>
-      <div class="formula" style="font-size: 1.1rem; color: var(--chalk-pink);">
-        ln(y) = ln(a) + b·x
+      <h3>Mínimos cuadrados</h3>
+      <p>El método de mínimos cuadrados utiliza el análisis de regresión para ayudarnos a encontrar la mejor curva o recta a nuestro conjunto de puntos experimentales (x<sub>1</sub>,y<sub>1</sub>),...,(x<sub>n</sub>,y<sub>n</sub>).</p>
+      <p>Sea f(x) una función que pasa muy cercano de la nube de puntos, esta debe ser tal que la suma mínima de los cuadrados de las distancias (medidas en la dirección de y) en cada punto a tal recta o curva es la de mejor ajuste posible. Al utilizar los cuadrados de las distancias, no importa si el punto está por arriba o por debajo de la curva propuesta.</p>
+      <p>Supongamos que p(x) = a + bx es la línea o curva que queremos encontrar, representada como un polinomio; la cual pasa por la nube de n puntos. En un principio, desconocemos los valores de a y b. Si tomamos un iésimo x<sub>i</sub> al cual le corresponde un punto (x<sub>i</sub>,y<sub>i</sub>) sabemos que la distancia entre este y nuestro polinomio evaluado en p(x<sub>i</sub>) es nada más y nada menos que |y<sub>i</sub> - (a + bx<sub>i</sub>)|.</p>
+      <p>Mejor aún, si en vez de utilizar valor absoluto elevamos al cuadrado, y sumamos todas las distancias de todos los posibles puntos, obtenemos:</p>
+      <div class="formula">q = Σ (y<sub>i</sub> - (a + bx<sub>i</sub>))²</div>
+      <p>Llamando a q la suma de los cuadrados de las distancias de la nube de puntos al polinomio p. Aquí, q depende de los valores a y b, aún desconocidos. Como deseamos que esta distancia sea mínima, podemos aplicar dos condiciones a nuestra q, recordando que la derivada de una función igualada a 0 nos da lo que deseamos. Si derivamos e igualamos a cero, y luego despejamos, obtenemos finalmente el sistema normal de ecuaciones:</p>
+      <div class="formula" style="font-family: monospace;">
+        a·n + b·Σx<sub>i</sub> = Σy<sub>i</sub><br>
+        a·Σx<sub>i</sub> + b·Σx<sub>i</sub>² = Σ(x<sub>i</sub>·y<sub>i</sub>)
       </div>
-      <p>Tratando a los coeficientes de modo que $\ln(a) = a_0$ y $b = a_1$, obtenemos nuestro nuevo sistema de ecuaciones linealizado para fenómenos de enfriamiento[cite: 1]:</p>
-      <div class="formula">
-        ln(a)·n + b·Σxᵢ = Σln(yᵢ)<br>
-        ln(a)·Σxᵢ + b·Σxᵢ² = Σ(xᵢ·ln(yᵢ))
-      </div>
-    </section>
+      <p>Si calculamos todas las sumatorias reemplazando por nuestros puntos experimentales nos quedará un sistema de ecuaciones para a y b. Una vez despejados estos dos valores, podemos obtener finalmente nuestro polinomio deseado al reemplazar en p(x) = a + bx. Podemos llamar a este resultado final encontrado y<sub>ajuste</sub>.</p>
 
-    <section id="bondad">
-      <p class="eyebrow">05 — Análisis de Correlación</p>
-      <h2>Evaluación de Bondad (r²)</h2>
-      <p>El análisis de correlación mide qué tan "correlacionados" están los datos experimentales entre sí[cite: 1]. Al tomar el cuadrado del coeficiente de correlación, obtenemos la <b>bondad del ajuste ($r^2$)</b>[cite: 1]. Este valor nos indica, en forma de porcentaje, la relación exacta que existe entre los datos experimentales y la función matemática obtenida del modelo[cite: 1].</p>
-      
-      <p>Se calcula matemáticamente como[cite: 1]:</p>
-      <div class="formula">
-        r² = ( S<sub>media</sub> - S<sub>ajuste</sub> ) / S<sub>media</sub>
+      <h3>Linealización</h3>
+      <p>Uno de los problemas que podemos encontrar al trabajar con este método es que al graficar nuestro conjunto de puntos experimentales, observemos que ellos forman una curva similar a alguna función matemática conocida distinta a la de un polinomio. Puesto a que hasta ahora hemos encontrado un método que nos lleva a un sistema de ecuaciones donde nuestra curva o recta tiene forma polinómica, este método no parece muy útil.</p>
+      <p>Con el ajuste por linealización, podemos tomar dicha función matemática conocida y llevarla a términos parecidos a los de un polinomio. Una de las linealizaciones de particular interés para nosotros es el exponencial, puesto que el enfriamiento de la temperatura de un líquido sigue la gráfica de una curva exponencial.</p>
+      <p>Dada la curva exponencial y = a·e<sup>bx</sup>, al aplicar logaritmo natural de ambos lados de la ecuación y aplicar propiedades logarítmicas se obtiene:</p>
+      <div class="formula" style="color:var(--chalk-pink);">ln(y) = ln(a) + b·x</div>
+      <p>La cual se asemeja mucho a la forma de una recta. Tratando a los coeficientes de forma equivalente, podemos encontrar nuestro nuevo sistema de ecuaciones:</p>
+      <div class="formula" style="font-family: monospace;">
+        ln(a)·n + b·Σx<sub>i</sub> = Σln(y<sub>i</sub>)<br>
+        ln(a)·Σx<sub>i</sub> + b·Σx<sub>i</sub>² = Σ(x<sub>i</sub>·ln(y<sub>i</sub>))
       </div>
-      <ul style="font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem;">
-        <li>S<sub>media</sub> = Σ(yᵢ - y<sub>media</sub>)²[cite: 1]</li>
-        <li>S<sub>ajuste</sub> = Σ(yᵢ - y<sub>ajuste</sub>)²[cite: 1]</li>
+
+      <h3>Análisis de correlación: bondad</h3>
+      <p>Como bien mencionamos, el coeficiente de correlación nos dice qué tan "correlacionados" los datos experimentales están unos de otros. Si tomamos el cuadrado de este coeficiente obtenemos la bondad, <b>r²</b>, la cual nos dice en forma de porcentaje la relación que hay entre los datos experimentales y el modelo matemático que encontramos.</p>
+      <div class="formula">r² = (S<sub>media</sub> - S<sub>ajuste</sub>) / S<sub>media</sub></div>
+      <p>De donde:</p>
+      <ul style="font-family: monospace; font-size: 0.95rem;">
+        <li>S<sub>media</sub> = Σ(y<sub>i</sub> - y<sub>media</sub>)²</li>
+        <li>S<sub>ajuste</sub> = Σ(y<sub>i</sub> - y<sub>ajuste</sub>)²</li>
       </ul>
-      <p><i>Nota clave:</i> Para evaluar una curva exponencial linealizada, simplemente basta con reemplazar a yᵢ con ln(yᵢ) en estas sumatorias[cite: 1].</p>
+      <p>Para una curva exponencial a la cual hemos linealizado, simplemente basta con reemplazar a y<sub>i</sub> con ln(y<sub>i</sub>) nuevamente.</p>
+    </section>
+
+    <section id="caso" class="wide">
+      <h2>3. Caso: Recipientes de café</h2>
+      <p>Volvemos nuevamente al caso inicial de los recipientes del café. Nuevamente, el enunciado es el siguiente:</p>
+      <div class="box note">
+        <p style="margin:0;">Una cafetería desea comparar cuánto tiempo conservan el calor cuatro recipientes con un cierto material: taza de cerámica, vaso de vidrio, vaso de papel con tapa y recipiente térmico. Se registró la temperatura de una bebida en el tiempo cada 2 minutos durante 120 minutos. El objetivo es construir, evaluar e interpretar un modelo para cada clúster y comparar el comportamiento de los cuatro recipientes.</p>
+      </div>
+
+      <h3>Datos experimentales</h3>
+      
+      <!-- Matriz 2x2 de Clústeres (Tablas y Gráficas) -->
+      <div class="cluster-matrix">
+        <!-- Cerámica -->
+        <div class="cluster-card">
+          <h3>Taza de cerámica</h3>
+          <div class="tabs-nav">
+            <button class="tab-btn active" data-target="content-chart-ceramica">Gráfica</button>
+            <button class="tab-btn" data-target="content-table-ceramica">Tabla</button>
+          </div>
+          <div class="tab-content active" id="content-chart-ceramica">
+            <canvas id="chart-ceramica" height="220"></canvas>
+          </div>
+          <div class="tab-content" id="content-table-ceramica" style="display:none;">
+            <div class="table-wrapper">
+              <table class="data-table-sm">
+                <thead><tr><th>Minutos</th><th>T. Ambiente (°C)</th><th>T. Café (°C)</th></tr></thead>
+                <tbody id="tbody-ceramica"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vidrio -->
+        <div class="cluster-card">
+          <h3>Vaso de vidrio</h3>
+          <div class="tabs-nav">
+            <button class="tab-btn active" data-target="content-chart-vidrio">Gráfica</button>
+            <button class="tab-btn" data-target="content-table-vidrio">Tabla</button>
+          </div>
+          <div class="tab-content active" id="content-chart-vidrio">
+            <canvas id="chart-vidrio" height="220"></canvas>
+          </div>
+          <div class="tab-content" id="content-table-vidrio" style="display:none;">
+            <div class="table-wrapper">
+              <table class="data-table-sm">
+                <thead><tr><th>Minutos</th><th>T. Ambiente (°C)</th><th>T. Café (°C)</th></tr></thead>
+                <tbody id="tbody-vidrio"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Papel -->
+        <div class="cluster-card">
+          <h3>Vaso de papel con tapa</h3>
+          <div class="tabs-nav">
+            <button class="tab-btn active" data-target="content-chart-papel">Gráfica</button>
+            <button class="tab-btn" data-target="content-table-papel">Tabla</button>
+          </div>
+          <div class="tab-content active" id="content-chart-papel">
+            <canvas id="chart-papel" height="220"></canvas>
+          </div>
+          <div class="tab-content" id="content-table-papel" style="display:none;">
+            <div class="table-wrapper">
+              <table class="data-table-sm">
+                <thead><tr><th>Minutos</th><th>T. Ambiente (°C)</th><th>T. Café (°C)</th></tr></thead>
+                <tbody id="tbody-papel"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Térmico -->
+        <div class="cluster-card">
+          <h3>Recipiente térmico</h3>
+          <div class="tabs-nav">
+            <button class="tab-btn active" data-target="content-chart-termico">Gráfica</button>
+            <button class="tab-btn" data-target="content-table-termico">Tabla</button>
+          </div>
+          <div class="tab-content active" id="content-chart-termico">
+            <canvas id="chart-termico" height="220"></canvas>
+          </div>
+          <div class="tab-content" id="content-table-termico" style="display:none;">
+            <div class="table-wrapper">
+              <table class="data-table-sm">
+                <thead><tr><th>Minutos</th><th>T. Ambiente (°C)</th><th>T. Café (°C)</th></tr></thead>
+                <tbody id="tbody-termico"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 40px;">Análisis y aplicación de los métodos teóricos</h3>
+      <p>Podemos identificar en este caso 4 clústeres independientes de datos, cada uno compuesto de n=61 mediciones tomadas a intervalos de 2 minutos durante un período total de 120 minutos:</p>
+      <ul>
+        <li>Clúster 1: Recipiente Térmico.</li>
+        <li>Clúster 2: Vaso de Papel (con tapa).</li>
+        <li>Clúster 3: Taza de Cerámica (descubierta).</li>
+        <li>Clúster 4: Vaso de Vidrio (descubierto).</li>
+      </ul>
+      <p>Interpretamos que la variable independiente t es el tiempo transcurrido en minutos, y la variable dependiente T es la temperatura de la bebida en grados celsius (°C).</p>
+      <p>Al analizar los datos, podemos comprender que la temperatura no desciende a cero, sino que tiende asintóticamente a la temperatura ambiente, asimilándose mucho su gráfica a la de una función de naturaleza exponencial.</p>
+      <p>Intentamos conformar una función exponencial que pueda servirnos para el caso. Sabiendo que una función exponencial general tiene la forma T(t) = T<sub>0</sub> + ae<sup>bt</sup>, podemos intentar deducir que a es la diferencia de temperatura inicial del café y de temperatura del ambiente T<sub>0</sub> puesto a que a = T(0) - T<sub>0</sub> (dado que e<sup>b·0</sup>=1); y que b es algún coeficiente dependiente del material de la taza que determinará qué tan rápido el café se enfría; puesto a que es el valor que multiplica al tiempo. Además, podemos deducir que dicho valor será negativo, pues la curva de la gráfica decrece.</p>
+      <p>Yendo un paso más adelante, la Ley de Enfriamiento de Newton nos dice que T(t) = T<sub>amb</sub> + Ae<sup>-kt</sup>, donde T<sub>amb</sub> es la temperatura del ambiente, A el salto térmico inicial, y k la constante de enfriamiento.</p>
+      <p>Para encontrar los valores de a y b aplicaremos el método de mínimos cuadrados visto en la base teórica. Para esto, es necesario linearizar la función que acabamos de realizar primero, resultando en ln(T - T<sub>amb</sub>) = ln(a) + bt.</p>
+      <p>El siguiente paso es obtener las sumatorias con nuestra muestra experimental. Para hacer esto, tomamos uno de los clústeres, en nuestro caso, probaremos con el recipiente térmico. Acto seguido, reemplazamos en la fórmula de los mínimos cuadrados:</p>
+      
+      <div class="formula" style="font-family: monospace;">
+        [ n      Σt<sub>i</sub>  ] [ ln a ] = [ Σ ln T<sub>i</sub>     ]<br>
+        [ Σt<sub>i</sub>   Σt<sub>i</sub>² ] [  b   ]   [ Σ(t<sub>i</sub>·ln T<sub>i</sub>) ]
+      </div>
+
+      <p>Para el recipiente térmico, luego de calcular los términos, obtenemos:</p>
+      <div class="formula" style="font-family: monospace;">
+        [ 61     3660   ] [ ln a ] = [ 230.1889   ]<br>
+        [ 3660   295240 ] [  b   ]   [ 13296.5979 ]
+      </div>
+
+      <p>Del cual podemos obtener un sistema de ecuaciones que al despejar nos resulta en los valores de a = 65.4896 y de b = -0.0068.</p>
+      <p>En este caso, la fórmula final para la temperatura del café en el recipiente térmico nos queda:</p>
+      <div class="formula" style="color:var(--chalk-teal);">T(t) = T<sub>amb</sub> + 65.4896 e<sup>-0.0068t</sup></div>
+
+      <p>Finalmente, compararemos qué tan buena fue la aproximación mediante el parámetro de bondad:</p>
+      <div class="formula">r² = (S<sub>media</sub> - S<sub>ajuste</sub>) / S<sub>media</sub></div>
+      <p>De donde calculamos tal que:</p>
+      <ul style="font-family: monospace; font-size: 0.95rem;">
+        <li>S<sub>media</sub> = Σ(T<sub>i</sub> - T<sub>media</sub>)²</li>
+        <li>S<sub>ajuste</sub> = Σ(T<sub>i</sub> - T(t<sub>i</sub>))²</li>
+      </ul>
+      <p>Siendo T<sub>i</sub> las temperaturas del café de la muestra experimental; T<sub>media</sub> la sumatoria dividida entre n; y T(t<sub>i</sub>) las obtenidas de la función. Encontramos el resultado final:</p>
+      <div class="formula">r² = (6941.1456 - 1.8496) / 6941.1456 ≈ 0.9997</div>
+      <p>Siendo S<sub>ajuste</sub> = 1.8496 de particular interés, puesto a que √S<sub>ajuste</sub> = 1.36 tiene un significado particular: la media del error de temperatura entre el dato experimental y la función obtenida. El resultado sugiere que nuestra función aproxima muy bien los datos experimentales obtenidos.</p>
+      <p>Resultados similares pueden obtenerse de aplicar la misma metodología con los clústeres de datos restantes.</p>
+
+      <!-- Recreación en HTML de la imagen de resultados, omitiendo \sqrt{S_{media}} según lo solicitado -->
+      <h3 style="font-family:'Kalam', cursive; font-size: 1.8rem; margin: 40px 0 15px;">Resultados por recipiente</h3>
+      <div class="results-img-replica">
+        <div class="res-card">
+          <h4>Taza de cerámica</h4>
+          <div class="res-eq">T(t) = T<sub>amb</sub> + 65.0048e<sup>-0.0234t</sup></div>
+          <div class="res-stats">r² ≈ 0.9998<br>√S<sub>ajuste</sub> ≈ 1.71</div>
+        </div>
+        <div class="res-card">
+          <h4>Vaso de vidrio</h4>
+          <div class="res-eq">T(t) = T<sub>amb</sub> + 66.8189e<sup>-0.0310t</sup></div>
+          <div class="res-stats">r² ≈ 0.9996<br>√S<sub>ajuste</sub> ≈ 2.70</div>
+        </div>
+        <div class="res-card">
+          <h4>Vaso de papel con tapa</h4>
+          <div class="res-eq">T(t) = T<sub>amb</sub> + 64.4325e<sup>-0.0179t</sup></div>
+          <div class="res-stats">r² ≈ 0.9998<br>√S<sub>ajuste</sub> ≈ 1.74</div>
+        </div>
+        <div class="res-card">
+          <h4>Recipiente térmico</h4>
+          <div class="res-eq">T(t) = T<sub>amb</sub> + 65.4896e<sup>-0.0068t</sup></div>
+          <div class="res-stats">r² ≈ 0.9997<br>√S<sub>ajuste</sub> ≈ 1.36</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 40px;">Conclusión</h3>
+      <p>Dado al resultado de la bondad del recipiente térmico, podemos decir con un 99% de certeza que nuestra función predice la temperatura del café para dicho recipiente pasado un tiempo t. Además, el error que hay de temperatura entre nuestra función y los datos reales del café son de aproximadamente 1°C.</p>
+      <p>En cuanto a los clústeres, concluimos lo siguiente:</p>
+
+      <div class="table-scroll">
+        <table class="compare">
+          <thead>
+            <tr>
+              <th>Clúster (Material)</th>
+              <th>Constante térmica (b)</th>
+              <th>Interpretación Física</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Recipiente térmico</td>
+              <td>-0.0068</td>
+              <td>Posee la tasa de enfriamiento más lenta. Su aislamiento térmico es casi perfecto. Es el que mejor conserva el calor.</td>
+            </tr>
+            <tr>
+              <td>Vaso de papel con tapa</td>
+              <td>-0.0179</td>
+              <td>Al bloquear la convección con la tapa, frena drásticamente la pérdida térmica.</td>
+            </tr>
+            <tr>
+              <td>Taza de cerámica</td>
+              <td>-0.0234</td>
+              <td>Sufre una alta fuga calórica por radiación y convección, perdiendo calor el triple de rápido que el térmico.</td>
+            </tr>
+            <tr>
+              <td>Vaso de vidrio</td>
+              <td>-0.0310</td>
+              <td>Resultó el peor aislante. Su tasa de pérdida térmica quintuplica a la del recipiente térmico. Es el que peor conserva el calor.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section id="calculadora" class="wide">
-      <p class="eyebrow">06 — Aplicación del Caso</p>
-      <h2>Calculadora de Ecuaciones y Gráficos</h2>
-      <p>Esta herramienta aplica las ecuaciones del documento para calcular en tiempo real los parámetros matriciales ($a_0, a_1, a_m$) y exhibe la curva que posea la mayor bondad del ajuste ($r^2$).</p>
+      <h2>4. Calculadora Interactiva</h2>
+      <p>Esta herramienta aplica las ecuaciones del documento para calcular en tiempo real los parámetros matriciales y exhibe la curva que posea la mayor bondad del ajuste (r²).</p>
 
       <div class="calc-panel">
         <div class="calc-grid">
@@ -140,9 +309,7 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
-                  <!-- Filas dinámicas -->
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
 
@@ -160,17 +327,15 @@
               <div class="formula" id="res-eq" style="margin: 0; font-size: 1.1rem;">-</div>
               <p style="margin-top: 10px; font-weight: 600;">Bondad del ajuste: <span id="res-r2" style="color: var(--chalk-teal);">-</span></p>
             </div>
-
             <div style="background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--board-line); margin-top: 15px;">
               <canvas id="calcChart" height="200"></canvas>
             </div>
-
             <table class="compare" id="all-models-table" style="margin-top: 15px; display: none;">
               <thead>
                 <tr>
                   <th>Regresión Evaluada</th>
                   <th>Ecuación Resultante</th>
-                  <th>$r^2$</th>
+                  <th>r²</th>
                 </tr>
               </thead>
               <tbody id="all-models-body"></tbody>
@@ -178,6 +343,17 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section id="bibliografia">
+      <h2>5. Bibliografía</h2>
+      <p>Kreyszig, E. (2011). Advanced engineering mathematics (10.ª ed.). John Wiley & Sons.</p>
+      <ul>
+        <li>Capítulo 19: Numerics in General.</li>
+        <li>Capítulo 20: Numeric Linear Algebra (sección 20.5: Least Squares Method).</li>
+        <li>Capítulo 25: Mathematical statistics (sección 20.9: Fitting Straight Lines. Correlation).</li>
+      </ul>
+      <p>Apuntes de la cátedra.</p>
     </section>
 
     <footer>
